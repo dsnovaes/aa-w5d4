@@ -11,7 +11,7 @@
 #
 class Course < ApplicationRecord
     # checks for presence of name
-    validates :name, presence: true,
+    validates :name, presence: true
 
     # a course can have many enrollments
     has_many :enrollments,
@@ -31,10 +31,17 @@ class Course < ApplicationRecord
         foreign_key: :instructor_id,
         class_name: :User
 
-    # association for prerequisite
-    has_many :prerequisite,
-        through: :course,
-        source: :course,
-        optional: true
+    # lists courses that are pre-requisite of self
+    belongs_to :prerequisite, # SELECT "courses".* FROM "courses" WHERE "courses"."id" = $1 LIMIT $2
+        primary_key: :id,
+        foreign_key: :prereq_id, # search for :prereq_id in the id column
+        class_name: :Course,
+        optional: true # must bu used with belongs_to. won't work with has_many
+
+    # lists courses that self is pre-requisite for
+    has_many :prereqs, # SELECT "courses".* FROM "courses" WHERE "courses"."prereq_id" = $1
+        primary_key: :id,
+        foreign_key: :prereq_id, # search for :id in the prereq_id column
+        class_name: :Course
 
 end
